@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE configuration>
+<configuration debug="false">
+
+    <property name="logs-name" value="tests" />
+    <property name="application-name" value="tests" />
+ 
+    <property scope="context" name="application-logs" value="${LOG_PATH:-logs/${application-name}}" />
+
+    <appender name="ConsoleAppender.info" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <!-- The caller line# should clickable in eclipse console.-->
+            <pattern>%date{HH:mm:ss.SSS} %-5level [%mdc{process}] %-70message\t{ %class.%method\(%file:%line\)}%n%throwable</pattern>
+        </encoder>
+    </appender>
+
+<!--
+set the log file name depending on property.
+start new log file on each application start
+-->
+
+    <appender name="FileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${application-logs}/${logs-name}.log</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--  Rollover at the top of each hour.  -->
+            <fileNamePattern>${application-logs}/${logs-name}.%d{yyyy-MM-dd_HH}.%i.log</fileNamePattern>
+            <maxFileSize>10000KB</maxFileSize>
+            <!-- see fileNamePattern; hours (5 days) -->
+            <maxHistory>120</maxHistory>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+             <pattern>%-5level %date %6relative\t [%mdc{process}] { %class.%method\(%file:%line\)} \t [%thread]\n\t%message\n%throwable</pattern>
+        </encoder>
+    </appender>
+
+
+    <logger name="org.apache" level="INFO" />
+    <logger name="com.mchange" level="INFO" />
+
+    <logger name="http.wire-log" level="DEBUG" />
+
+ 
+    <root level="INFO">
+        <appender-ref ref="ConsoleAppender.info" />
+        <appender-ref ref="FileAppender" />
+    </root>
+
+</configuration>
